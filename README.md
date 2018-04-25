@@ -1,7 +1,5 @@
 This is ergo-mode, the Emacs mode for editing Ergo code.
 
-Information about Ergo can be found at: [http://ergo.accordproject.org](http://ergo.accordproject.org)
-
 # Credits & Disclaimer
 
 This is a heavily hacked Emacs mode based on [go-mode.el](https://github.com/dominikh/go-mode.el)
@@ -14,6 +12,14 @@ To install ergo-mode, place `ergo-mode.el` in a directory of your choice, add it
 
     (add-to-list 'load-path "/place/where/you/put/it/")
     (require 'ergo-mode)
+
+## Try it
+
+Samples can be found in the Ergo distribution: [http://github.com/accordproject/ergo](http://github.com/accordproject/ergo)
+
+Once installed, opening Ergo files in Emacs should look something like that:
+
+![alt text](./ergomode.png)
 
 ## License
 
