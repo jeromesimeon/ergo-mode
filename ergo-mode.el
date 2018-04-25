@@ -2,9 +2,8 @@
 
 ;;; Commentary:
 
-
-;; Author: Jerome Simeon
-;; Version: 1.5.0
+;; Author: Jerome Simeon <jerome@clause.io>
+;; Version: 0.0.40
 ;; Keywords: languages ergo
 ;; URL: https://ergo.accordproject.org
 ;;
@@ -111,7 +110,7 @@ that constant is changed.")
 
 (defgroup ergo nil
   "Major mode for editing Ergo code."
-  :link '(url-link "https://github.com/dominikh/ergo-mode.el")
+  :link '(url-link "https://github.com/accordproject/ergo-mode")
   :group 'languages)
 
 (defgroup ergo-cover nil
@@ -727,14 +726,7 @@ The following extra functions are defined:
 - `ergo-set-project'
 - `ergo-reset-ergopath'
 
-If you're looking for even more integration with Ergo, namely
-on-the-fly syntax checking, auto-completion and snippets, it is
-recommended that you look at flycheck
-\(see URL `https://github.com/flycheck/flycheck') or flymake in combination
-with ergoflymake \(see URL `https://github.com/dougm/ergoflymake'), ergocode
-\(see URL `https://github.com/nsf/ergocode'), ergo-eldoc
-\(see URL `github.com/syohex/emacs-ergo-eldoc') and yasnippet-ergo
-\(see URL `https://github.com/dominikh/yasnippet-ergo')"
+"
 
   ;; Font lock
   (set (make-local-variable 'font-lock-defaults)
@@ -904,14 +896,14 @@ Playground URL."
            (buffer-substring-no-properties start end)
            'utf-8))
          (content-buf (url-retrieve
-                       "https://play.ergolang.org/share"
+                       "https://accordproject.github.io/ergo-playground/share"
                        (lambda (arg)
                          (cond
                           ((equal :error (car arg))
                            (signal 'ergo-play-error (cdr arg)))
                           (t
                            (re-search-forward "\n\n")
-                           (let ((url (format "https://play.ergolang.org/p/%s"
+                           (let ((url (format "https://accordproject.github.io/ergo-playground/p/%s"
                                               (buffer-substring (point) (point-max)))))
                              (when ergo-play-browse-function
                                (funcall ergo-play-browse-function url)))))))))))
