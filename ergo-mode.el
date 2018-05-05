@@ -95,8 +95,9 @@ that constant is changed.")
   '("function" "interface" "select"
     "with"     "match"     "ergo"        "map"       "struct"
     "else"     "namespace" "enforce"     "if"        "then"        "type"
-    "for"      "import"    "return"      "variable"
-    "contract" "clause"    "over"        "define")
+    "foreach"  "import"    "where"       "return"    "variable"
+    "contract" "clause"    "over"        "define"
+    "set"      "state"     "emit"        "throw")
   "All keywords in the Ergo language.  Used for font locking.")
 
 (defconst ergo-constants '("nil" "true" "false"))
