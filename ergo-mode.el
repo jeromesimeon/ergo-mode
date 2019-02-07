@@ -86,18 +86,17 @@ that constant is changed.")
                                "\\)("))
 
 (defconst ergo-builtins
-  '("append" "cap"   "close"   "complex" "copy"
-    "delete" "imag"  "len"     "make"    "new"
-    "panic"  "print" "println" "real"    "recover")
+  '("now" "min"   "max"   "some")
   "All built-in functions in the Ergo language.  Used for font locking.")
 
 (defconst ergo-mode-keywords
-  '("function" "interface" "select"
-    "with"     "match"     "ergo"        "map"       "struct"
-    "else"     "namespace" "enforce"     "if"        "then"        "type"
-    "foreach"  "import"    "where"       "return"    "variable"
-    "contract" "clause"    "over"        "define"
-    "set"      "state"     "emit"        "throw")
+  '("function"    "with"        "match"     "none"
+    "namespace"   "enforce"     "if"        "then"      "else"      "let"
+    "foreach"     "import"      "where"     "return"    "constant"
+    "section"     "contract"    "clause"    "over"      "define"
+    "set"         "state"       "emit"      "throw"
+    "extends"     "event"       "asset"     "enum"      "concept"
+    "participant" "transaction" "abstract")
   "All keywords in the Ergo language.  Used for font locking.")
 
 (defconst ergo-constants '("nil" "true" "false"))
@@ -176,16 +175,6 @@ mis-identifying them as gb projects."
   "Make URL the latest kill and print a message."
   (kill-new url)
   (message "%s" url))
-
-(defcustom ergo-play-browse-function 'ergo--kill-new-message
-  "Function to call with the Playground URL.
-See `ergo-play-region' for more details."
-  :type '(choice
-          (const :tag "Nothing" nil)
-          (const :tag "Kill + Message" ergo--kill-new-message)
-          (const :tag "Browse URL" browse-url)
-          (function :tag "Call function"))
-  :group 'ergo)
 
 (defvar ergo-mode-syntax-table
   (let ((st (make-syntax-table)))
@@ -271,11 +260,6 @@ See `ergo-play-region' for more details."
     ["Add Import"            ergo-import-add t]
     ["Remove Unused Imports" ergo-remove-unused-imports t]
     ["Go to Imports"         ergo-goto-imports t]
-    "---"
-    ("Playground"
-     ["Send Buffer"          ergo-play-buffer t]
-     ["Send Region"          ergo-play-region t]
-     ["Download"             ergo-download-play t])
     "---"
     ["Customize Mode"        (customize-group 'ergo) t]))
 
@@ -722,8 +706,6 @@ The following extra functions are defined:
 - `ergo-goto-imports'
 - `ergo-goto-return-values'
 - `ergo-goto-method-receiver'
-- `ergo-play-buffer' and `ergo-play-region'
-- `ergo-download-play'
 - `ergo-set-project'
 - `ergo-reset-ergopath'
 
@@ -863,9 +845,6 @@ declaration."
   (let ((old-point (point)))
     (goto-char (point-min))
     (cond
-     ((re-search-forward "^import ()" nil t)
-      (backward-char 1)
-      'block-empty)
      ((re-search-forward "^import ([^)]+)" nil t)
       (backward-char 2)
       'block)
@@ -878,53 +857,6 @@ declaration."
       (goto-char old-point)
       (message "No imports or package declaration found. Is this really a Ergo file?")
       'fail))))
-
-(defun ergo-play-buffer ()
-  "Like `ergo-play-region', but acts on the entire buffer."
-  (interactive)
-  (ergo-play-region (point-min) (point-max)))
-
-(defun ergo-play-region (start end)
-  "Send the region between START and END to the Playground.
-If non-nil `ergo-play-browse-function' is called with the
-Playground URL."
-  (interactive "r")
-  (let* ((url-request-method "POST")
-         (url-request-extra-headers
-          '(("Content-Type" . "application/x-www-form-urlencoded")))
-         (url-request-data
-          (encode-coding-string
-           (buffer-substring-no-properties start end)
-           'utf-8))
-         (content-buf (url-retrieve
-                       "https://accordproject.github.io/ergo-playground/share"
-                       (lambda (arg)
-                         (cond
-                          ((equal :error (car arg))
-                           (signal 'ergo-play-error (cdr arg)))
-                          (t
-                           (re-search-forward "\n\n")
-                           (let ((url (format "https://accordproject.github.io/ergo-playground/p/%s"
-                                              (buffer-substring (point) (point-max)))))
-                             (when ergo-play-browse-function
-                               (funcall ergo-play-browse-function url)))))))))))
-
-;;;###autoload
-(defun ergo-download-play (url)
-  "Download a paste from the playground and insert it in a Ergo buffer.
-Tries to look for a URL at point."
-  (interactive (list (read-from-minibuffer "Playground URL: " (ffap-url-p (ffap-string-at-point 'url)))))
-  (with-current-buffer
-      (let ((url-request-method "GET") url-request-data url-request-extra-headers)
-        (url-retrieve-synchronously (concat url ".ergo")))
-    (let ((buffer (generate-new-buffer (concat (car (last (split-string url "/"))) ".ergo"))))
-      (goto-char (point-min))
-      (re-search-forward "\n\n")
-      (copy-to-buffer buffer (point) (point-max))
-      (kill-buffer)
-      (with-current-buffer buffer
-        (ergo-mode)
-        (switch-to-buffer buffer)))))
 
 (defun ergo-propertize-syntax (start end)
   (save-excursion
